@@ -5,13 +5,37 @@
 
 {% block page_specific_css %}
 <style>
-    /* Style for roles checkboxes */
-    .roles-checkbox-group {
-        max-height: 200px;
-        overflow-y: auto;
+    .table-container {
         border: 1px solid #dee2e6;
         border-radius: 4px;
-        padding: 10px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        margin-bottom: 20px;
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+
+    .table th {
+        background-color: transparent;
+        border-top: none;
+    }
+
+    .table td, .table th {
+        padding: 0.75rem;
+        vertical-align: middle;
+    }
+
+    .badge {
+        font-size: 0.875em;
+    }
+
+    .roles-group {
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 15px;
+        background-color: #f8f9fa;
     }
 
     .role-checkbox {
@@ -27,24 +51,6 @@
         font-weight: normal;
         margin-bottom: 0;
         cursor: pointer;
-    }
-
-    /* Custom scrollbar for the roles container */
-    .roles-checkbox-group::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    .roles-checkbox-group::-webkit-scrollbar-track {
-        background: #f1f1f1;
-    }
-
-    .roles-checkbox-group::-webkit-scrollbar-thumb {
-        background: #888;
-        border-radius: 4px;
-    }
-
-    .roles-checkbox-group::-webkit-scrollbar-thumb:hover {
-        background: #555;
     }
 </style>
 {% endblock %}
@@ -62,57 +68,77 @@
                     {% if coinvestigators %}
                     <div class="mb-4">
                         <h5>Current Co-Investigators:</h5>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Roles</th>
-                                    <th>Permissions</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for co in coinvestigators %}
-                                <tr>
-                                    <td>{{ co.user.get_full_name }}</td>
-                                    <td>
-                                        {% for role in co.get_role_display %}
-                                            <span class="badge bg-secondary me-1">{{ role }}</span>
-                                        {% endfor %}
-                                    </td>
-                                    <td>
-                                        {% if co.can_edit %}<span class="badge bg-success">Edit</span>{% endif %}
-                                        {% if co.can_submit %}<span class="badge bg-info">Submit</span>{% endif %}
-                                        {% if co.can_view_communications %}<span class="badge bg-warning">View Communications</span>{% endif %}
-                                    </td>
-                                    <td>
-                                        <form method="post" style="display: inline;">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="coinvestigator_id" value="{{ co.id }}">
-                                            <button type="submit" name="action" value="delete_coinvestigator" 
-                                                    class="btn btn-danger btn-sm"
-                                                    onclick="return confirm('Are you sure you want to remove this co-investigator?')">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                        <div class="table-container">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Roles</th>
+                                        <th>Permissions</th>
+                                        <th>Research Activities</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for co in coinvestigators %}
+                                    <tr>
+                                        <td>{{ co.user.get_full_name }}</td>
+                                        <td>
+                                            {% for role in co.get_role_display %}
+                                                <span class="badge bg-secondary me-1">{{ role }}</span>
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% if co.can_edit or co.can_submit or co.can_view_communications %}
+                                                <div>
+                                                    {% if co.can_edit %}<span class="badge bg-success me-1">Edit</span>{% endif %}
+                                                    {% if co.can_submit %}<span class="badge bg-info me-1">Submit</span>{% endif %}
+                                                    {% if co.can_view_communications %}<span class="badge bg-warning me-1">View Communications</span>{% endif %}
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if co.can_identify_participants or co.can_approach_participants or co.can_consent_participants or co.can_conceptualize_methodology or co.can_collect_data or co.can_validate_analyze_data or co.can_acquire_funding %}
+                                                <div>
+                                                    {% if co.can_identify_participants %}<span class="badge bg-secondary me-1">Identify</span>{% endif %}
+                                                    {% if co.can_approach_participants %}<span class="badge bg-secondary me-1">Approach</span>{% endif %}
+                                                    {% if co.can_consent_participants %}<span class="badge bg-secondary me-1">Consent</span>{% endif %}
+                                                    {% if co.can_conceptualize_methodology %}<span class="badge bg-secondary me-1">Methods</span>{% endif %}
+                                                    {% if co.can_collect_data %}<span class="badge bg-secondary me-1">Data Collection</span>{% endif %}
+                                                    {% if co.can_validate_analyze_data %}<span class="badge bg-secondary me-1">Analysis</span>{% endif %}
+                                                    {% if co.can_acquire_funding %}<span class="badge bg-secondary me-1">Funding</span>{% endif %}
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <form method="post" style="display: inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="coinvestigator_id" value="{{ co.id }}">
+                                                <button type="submit" name="action" value="delete_coinvestigator" 
+                                                        class="btn btn-danger btn-sm"
+                                                        onclick="return confirm('Are you sure you want to remove this co-investigator?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                     {% endif %}
 
                     <form method="post" novalidate>
                         {% csrf_token %}
                         
-                        {# Render investigator field with crispy #}
+                        {# Investigator field #}
                         {{ form.investigator|as_crispy_field }}
 
-                        {# Custom rendering for roles field #}
+                        {# Roles field #}
                         <div class="mb-3">
                             <label class="form-label">{{ form.roles.label }}</label>
-                            <div class="roles-checkbox-group">
+                            <div class="roles-group">
                                 {% for choice in form.roles %}
                                     <div class="role-checkbox">
                                         {{ choice.tag }}
@@ -132,10 +158,29 @@
                             {% endif %}
                         </div>
 
-                        {# Render remaining fields with crispy #}
-                        {{ form.can_edit|as_crispy_field }}
-                        {{ form.can_submit|as_crispy_field }}
-                        {{ form.can_view_communications|as_crispy_field }}
+                        {# Permissions section #}
+                        <div class="mb-4">
+                            <h5>Permissions</h5>
+                            <div class="roles-group">
+                                {{ form.can_edit|as_crispy_field }}
+                                {{ form.can_submit|as_crispy_field }}
+                                {{ form.can_view_communications|as_crispy_field }}
+                            </div>
+                        </div>
+
+                        {# Research Activities section #}
+                        <div class="mb-4">
+                            <h5>Research Activities</h5>
+                            <div class="roles-group">
+                                {{ form.can_identify_participants|as_crispy_field }}
+                                {{ form.can_approach_participants|as_crispy_field }}
+                                {{ form.can_consent_participants|as_crispy_field }}
+                                {{ form.can_conceptualize_methodology|as_crispy_field }}
+                                {{ form.can_collect_data|as_crispy_field }}
+                                {{ form.can_validate_analyze_data|as_crispy_field }}
+                                {{ form.can_acquire_funding|as_crispy_field }}
+                            </div>
+                        </div>
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
                             <button type="submit" name="action" value="back" class="btn btn-secondary me-md-2" formnovalidate>
@@ -150,10 +195,9 @@
                             <button type="submit" name="action" value="save_continue" class="btn btn-success">
                                 <i class="fas fa-arrow-right"></i> Save and Continue
                             </button>
-                            <button type="submit" name="action" value="save_add_another" class="btn btn-info me-md-2">
+                            <button type="submit" name="action" value="save_add_another" class="btn btn-info">
                                 <i class="fas fa-plus"></i> Add Co-investigator
                             </button>
-
                         </div>
                     </form>
                 </div>
@@ -166,18 +210,17 @@
 {% block page_specific_js %}
 <script>
     $(document).ready(function() {
-        // Initialize investigator Select2 only
         $('#id_investigator').select2({
-    theme: 'bootstrap4',
-    ajax: {
-        url: '{% url "submission:user-autocomplete" %}',
-        dataType: 'json',
-        delay: 250,
-        data: function (params) {
-            return {
-                term: params.term,
-                submission_id: '{{ submission.id }}',
-                user_type: 'coinvestigator'
+            theme: 'bootstrap4',
+            ajax: {
+                url: '{% url "submission:user-autocomplete" %}',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        term: params.term,
+                        submission_id: '{{ submission.id }}',
+                        user_type: 'coinvestigator'
                     };
                 },
                 processResults: function (data) {
@@ -198,7 +241,6 @@
             width: '100%'
         });
 
-        // Handle initial value for investigator if exists
         {% if form.investigator.initial %}
             var initialUser = {
                 id: '{{ form.investigator.initial.id }}',

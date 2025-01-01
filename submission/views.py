@@ -431,12 +431,20 @@ def add_coinvestigator(request, submission_id):
                     with transaction.atomic():
                         # Create new co-investigator
                         coinv = CoInvestigator(
-                            submission=submission,
-                            user=investigator,
-                            can_submit=form.cleaned_data.get('can_submit', False),
-                            can_edit=form.cleaned_data.get('can_edit', False),
-                            can_view_communications=form.cleaned_data.get('can_view_communications', False)
-                        )
+                                    submission=submission,
+                                    user=investigator,
+                                    can_submit=form.cleaned_data.get('can_submit', False),
+                                    can_edit=form.cleaned_data.get('can_edit', False),
+                                    can_view_communications=form.cleaned_data.get('can_view_communications', False),
+                                    # Add research activity permissions
+                                    can_identify_participants=form.cleaned_data.get('can_identify_participants', False),
+                                    can_approach_participants=form.cleaned_data.get('can_approach_participants', False),
+                                    can_consent_participants=form.cleaned_data.get('can_consent_participants', False),
+                                    can_conceptualize_methodology=form.cleaned_data.get('can_conceptualize_methodology', False),
+                                    can_collect_data=form.cleaned_data.get('can_collect_data', False),
+                                    can_validate_analyze_data=form.cleaned_data.get('can_validate_analyze_data', False),
+                                    can_acquire_funding=form.cleaned_data.get('can_acquire_funding', False)
+                                )
                         
                         # Set roles (it's a list field, not M2M)
                         coinv.roles = list(selected_roles)

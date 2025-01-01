@@ -332,7 +332,7 @@ class Submission(models.Model):
             models.Q(show_in_irb=True, primary_investigator__groups__name='IRB') |
             models.Q(show_in_rc=True, primary_investigator__groups__name='RC')
         ).distinct()
-
+    
 class CoInvestigator(models.Model):
     submission = models.ForeignKey(
         'Submission', 
@@ -344,6 +344,16 @@ class CoInvestigator(models.Model):
     can_edit = models.BooleanField(default=False)
     can_submit = models.BooleanField(default=False)
     can_view_communications = models.BooleanField(default=False)
+    
+    # Research activity permissions
+    can_identify_participants = models.BooleanField(default=False)
+    can_approach_participants = models.BooleanField(default=False)
+    can_consent_participants = models.BooleanField(default=False)
+    can_conceptualize_methodology = models.BooleanField(default=False)
+    can_collect_data = models.BooleanField(default=False)
+    can_validate_analyze_data = models.BooleanField(default=False)
+    can_acquire_funding = models.BooleanField(default=False)
+    
     order = models.IntegerField(default=0)
 
     class Meta:
@@ -362,7 +372,11 @@ class CoInvestigator(models.Model):
         """Log changes to permissions."""
         if is_new:
             # Log initial permissions
-            for perm in ['can_edit', 'can_submit', 'can_view_communications']:
+            for perm in ['can_edit', 'can_submit', 'can_view_communications',
+                        'can_identify_participants', 'can_approach_participants',
+                        'can_consent_participants', 'can_conceptualize_methodology',
+                        'can_collect_data', 'can_validate_analyze_data',
+                        'can_acquire_funding']:
                 if getattr(self, perm):
                     PermissionChangeLog.objects.create(
                         submission=self.submission,
@@ -392,7 +406,11 @@ class CoInvestigator(models.Model):
             old_instance = CoInvestigator.objects.get(pk=self.pk)
             
             # Check for permission changes
-            for perm in ['can_edit', 'can_submit', 'can_view_communications']:
+            for perm in ['can_edit', 'can_submit', 'can_view_communications',
+                        'can_identify_participants', 'can_approach_participants',
+                        'can_consent_participants', 'can_conceptualize_methodology',
+                        'can_collect_data', 'can_validate_analyze_data',
+                        'can_acquire_funding']:
                 old_value = getattr(old_instance, perm)
                 new_value = getattr(self, perm)
                 
@@ -432,6 +450,14 @@ class ResearchAssistant(models.Model):
     can_edit = models.BooleanField(default=False)
     can_submit = models.BooleanField(default=False)
     can_view_communications = models.BooleanField(default=False)
+    # Research activity permissions
+    can_identify_participants = models.BooleanField(default=False, help_text="Permission to identify potential participants")
+    can_approach_participants = models.BooleanField(default=False, help_text="Permission to approach potential participants")
+    can_consent_participants = models.BooleanField(default=False, help_text="Permission to consent and interact with potential participants")
+    can_conceptualize_methodology = models.BooleanField(default=False, help_text="Permission to work on conceptualization and methodology")
+    can_collect_data = models.BooleanField(default=False, help_text="Permission to collect research data")
+    can_validate_analyze_data = models.BooleanField(default=False, help_text="Permission to validate and analyze data")
+    can_acquire_funding = models.BooleanField(default=False, help_text="Permission to work on funding acquisition")
     date_added = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -447,7 +473,14 @@ class ResearchAssistant(models.Model):
         """Log changes to permissions."""
         if is_new:
             # Log initial permissions
-            for perm in ['can_edit', 'can_submit', 'can_view_communications']:
+            permission_fields = [
+            'can_edit', 'can_submit', 'can_view_communications',
+            'can_identify_participants', 'can_approach_participants', 
+            'can_consent_participants', 'can_conceptualize_methodology',
+            'can_collect_data', 'can_validate_analyze_data', 
+            'can_acquire_funding'
+            ]
+            for perm in permission_fields:
                 if getattr(self, perm):
                     PermissionChangeLog.objects.create(
                         submission=self.submission,

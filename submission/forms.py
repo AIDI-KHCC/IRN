@@ -150,6 +150,8 @@ class CoInvestigatorForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple,
         help_text="Select all applicable roles"
     )
+
+    # Basic permissions
     can_edit = forms.BooleanField(
         required=False, 
         label="Can Edit",
@@ -166,9 +168,60 @@ class CoInvestigatorForm(forms.ModelForm):
         initial=False
     )
 
+    # Research activity permissions
+    can_identify_participants = forms.BooleanField(
+        required=False,
+        label="Can Identify Participants",
+        initial=False,
+        help_text="Permission to identify potential participants"
+    )
+    can_approach_participants = forms.BooleanField(
+        required=False,
+        label="Can Approach Participants",
+        initial=False,
+        help_text="Permission to approach potential participants"
+    )
+    can_consent_participants = forms.BooleanField(
+        required=False,
+        label="Can Consent/Interact with Participants",
+        initial=False,
+        help_text="Permission to consent and interact with potential participants"
+    )
+    can_conceptualize_methodology = forms.BooleanField(
+        required=False,
+        label="Can Conceptualize & Design Methodology",
+        initial=False,
+        help_text="Permission to work on conceptualization and methodology"
+    )
+    can_collect_data = forms.BooleanField(
+        required=False,
+        label="Can Collect Data",
+        initial=False,
+        help_text="Permission to collect research data"
+    )
+    can_validate_analyze_data = forms.BooleanField(
+        required=False,
+        label="Can Validate and Analyze Data",
+        initial=False,
+        help_text="Permission to validate and analyze data"
+    )
+    can_acquire_funding = forms.BooleanField(
+        required=False,
+        label="Can Acquire Funding",
+        initial=False,
+        help_text="Permission to work on funding acquisition"
+    )
+
     class Meta:
         model = CoInvestigator
-        fields = ['investigator', 'roles', 'can_edit', 'can_submit', 'can_view_communications']
+        fields = [
+            'investigator', 'roles',
+            'can_edit', 'can_submit', 'can_view_communications',
+            'can_identify_participants', 'can_approach_participants',
+            'can_consent_participants', 'can_conceptualize_methodology',
+            'can_collect_data', 'can_validate_analyze_data',
+            'can_acquire_funding'
+        ]
 
     def __init__(self, *args, **kwargs):
         self.submission = kwargs.pop('submission', None)
@@ -215,7 +268,7 @@ class CoInvestigatorForm(forms.ModelForm):
             instance.roles = list(self.cleaned_data['roles'])
             instance.save()
         return instance
-
+    
 def generate_django_form(dynamic_form):
     from django import forms
 
